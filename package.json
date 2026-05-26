@@ -1,0 +1,25 @@
+{
+  "name": "hexo-palette-cover",
+  "version": "0.1.0",
+  "description": "Deterministic generated SVG covers for Hexo Fluid posts.",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "lib",
+    "docs"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "hexo",
+    "hexo-plugin",
+    "hexo-fluid",
+    "svg",
+    "cover"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "Unlicense"
+}
