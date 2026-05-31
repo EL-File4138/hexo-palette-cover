@@ -34,7 +34,7 @@ function loadPlugin(config) {
 test('injectCover sets index_img and banner_img to same generated URL', () => {
   const { plugin } = loadPlugin();
   const context = { config: {} };
-  const data = plugin.injectCover.call(context, { slug: 'hello-world' });
+  const data = plugin.injectCover.call(context, { layout: 'post', slug: 'hello-world' });
 
   assert.equal(data.index_img, data.banner_img);
   assert.match(data.index_img, /^\/palette-cover\/hello-world-[a-f0-9]{10}\.svg$/);
@@ -44,6 +44,7 @@ test('injectCover preserves manual covers by default', () => {
   const { plugin } = loadPlugin();
   const context = { config: {} };
   const data = plugin.injectCover.call(context, {
+    layout: 'post',
     slug: 'hello-world',
     index_img: '/img/manual.png'
   });
@@ -56,6 +57,7 @@ test('injectCover overrides manual covers when configured', () => {
   const { plugin } = loadPlugin({ override: true });
   const context = { config: { palette_cover: { override: true } } };
   const data = plugin.injectCover.call(context, {
+    layout: 'post',
     slug: 'hello-world',
     index_img: '/img/manual.png'
   });
@@ -86,7 +88,7 @@ test('generateCovers returns svg routes for eligible posts', () => {
 test('generateCovers returns routes for posts already injected in template locals', () => {
   const { plugin } = loadPlugin();
   const context = { config: {} };
-  const post = plugin.injectCover.call(context, { slug: 'already-injected' });
+  const post = plugin.injectCover.call(context, { layout: 'post', slug: 'already-injected' });
   const routes = plugin.generateCovers.call(context, {
     posts: {
       toArray() {
@@ -97,6 +99,42 @@ test('generateCovers returns routes for posts already injected in template local
 
   assert.equal(routes.length, 1);
   assert.match(routes[0].path, /^palette-cover\/already-injected-[a-f0-9]{10}\.svg$/);
+});
+
+test('injectCover ignores non-post pages even with override enabled', () => {
+  const { plugin } = loadPlugin({ override: true });
+  const context = { config: { palette_cover: { override: true } } };
+  const data = plugin.injectCover.call(context, {
+    layout: 'page',
+    slug: 'about'
+  });
+
+  assert.equal(data.index_img, undefined);
+  assert.equal(data.banner_img, undefined);
+});
+
+test('injectCover ignores pages without post metadata', () => {
+  const { plugin } = loadPlugin();
+  const context = { config: {} };
+  const data = plugin.injectCover.call(context, {
+    slug: 'about',
+    source: 'about/index.md'
+  });
+
+  assert.equal(data.index_img, undefined);
+  assert.equal(data.banner_img, undefined);
+});
+
+test('injectCover accepts _posts source when layout is absent', () => {
+  const { plugin } = loadPlugin();
+  const context = { config: {} };
+  const data = plugin.injectCover.call(context, {
+    slug: 'source-post',
+    source: '_posts/source-post.md'
+  });
+
+  assert.equal(data.index_img, data.banner_img);
+  assert.match(data.index_img, /^\/palette-cover\/source-post-[a-f0-9]{10}\.svg$/);
 });
 
 test('injectTemplateLocals injects index list posts', () => {

@@ -1,12 +1,12 @@
 'use strict';
 
 const { getConfig } = require('./lib/config');
-const { buildCover, getIdentifier, shouldInject } = require('./lib/cover');
+const { buildCover, getIdentifier, isPostLike, shouldInject } = require('./lib/cover');
 const { renderSvg } = require('./lib/svg');
 
 function injectCover(data) {
   const config = getConfig(this.config && this.config.palette_cover);
-  if (!config.enable || !shouldInject(data, config)) return data;
+  if (!config.enable || !isPostLike(data) || !shouldInject(data, config)) return data;
 
   return applyCover(data, config);
 }

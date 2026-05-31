@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const { buildCover, shouldInject } = require('../lib/cover');
+const { buildCover, isPostLike, shouldInject } = require('../lib/cover');
 const { getConfig } = require('../lib/config');
 const { renderSvg } = require('../lib/svg');
 const { RENDERERS } = require('../lib/svg');
@@ -52,6 +52,14 @@ test('override makes manual cover field eligible', () => {
   const config = getConfig({ override: true });
 
   assert.equal(shouldInject({ slug: 'manual', index_img: '/img/manual.png' }, config), true);
+});
+
+test('post-like detection excludes pages and accepts posts', () => {
+  assert.equal(isPostLike({ layout: 'post', slug: 'article' }), true);
+  assert.equal(isPostLike({ layout: 'page', slug: 'about' }), false);
+  assert.equal(isPostLike({ source: '_posts/article.md' }), true);
+  assert.equal(isPostLike({ source: 'about/index.md' }), false);
+  assert.equal(isPostLike({ slug: 'ambiguous' }), false);
 });
 
 test('custom route is normalized', () => {
